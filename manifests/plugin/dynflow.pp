@@ -54,12 +54,14 @@ class foreman_proxy::plugin::dynflow (
     ~> file { '/etc/smart_proxy_dynflow_core/settings.yml':
       ensure  => file,
       content => template('foreman_proxy/plugin/dynflow_core.yml.erb'),
+      notify  => Service['smart_proxy_dynflow_core'],
     }
-    ~> file { '/etc/smart_proxy_dynflow_core/settings.d':
+    -> file { '/etc/smart_proxy_dynflow_core/settings.d':
       ensure => link,
       target => "${foreman_proxy::config_dir}/settings.d",
+      notify => Service['smart_proxy_dynflow_core'],
     }
-    ~> systemd::service_limits { 'smart_proxy_dynflow_core.service':
+    -> systemd::service_limits { 'smart_proxy_dynflow_core.service':
       limits          => {
         'LimitNOFILE' => $open_file_limit,
       },
